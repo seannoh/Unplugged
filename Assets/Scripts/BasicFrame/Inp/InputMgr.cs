@@ -2,6 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum E_AllKeysActs
+{
+    up,
+    down,
+    left,
+    right,
+}
+
+
 #region Input manager
 //Input manager is based on event center and public mono manager
 //By using listeners, you can control any gameObjects
@@ -14,34 +23,44 @@ using UnityEngine;
 #endregion
 public class InputMgr : Singleton<InputMgr>
 {
-    public Dictionary<string, KeyCode> KeySet = new Dictionary<string, KeyCode>() //dict of all the controls
+    public Dictionary<E_AllKeysActs, KeyCode> KeySet = new Dictionary<E_AllKeysActs, KeyCode>() //dict of all the controls
     {
-        {"up", KeyCode.W},
-        {"down",KeyCode.S},
-        {"left", KeyCode.A},
-        {"right", KeyCode.D},
-        {"jump",KeyCode.K},
-        {"dash", KeyCode.L},
-        {"attack", KeyCode.J}
+        {E_AllKeysActs.up, KeyCode.W},
+        {E_AllKeysActs.down,KeyCode.S},
+        {E_AllKeysActs.left, KeyCode.A},
+        {E_AllKeysActs.right, KeyCode.D},
+
     };
 
-    private bool isSwitchOn = false; //flag to open the global check
+    private bool isSwitchOn = true; //flag to open the global check
     public InputMgr() //Constructor, uses public mono manager to open Update function
     {
         MonoMgr.Instance.AddUpdateListener(InputUpdate);
+        // MonoMgr.Instance.AddFixedUpdateListener(InputFixedUpdate);
     }
 
     private void InputUpdate() //The logic in update method
     {
-        if (isSwitchOn != true) return;
-        CheckKey(KeySet["up"]);
-        CheckKey(KeySet["down"]);
-        CheckKey(KeySet["left"]);
-        CheckKey(KeySet["right"]);
-        CheckKey(KeySet["jump"]);
-        CheckKey(KeySet["dash"]);
-        CheckKey(KeySet["attack"]);
+        if (!isSwitchOn) return;
+        CheckKeyPress(E_AllKeysActs.up);
+        CheckKeyPress(E_AllKeysActs.down);
+        CheckKeyPress(E_AllKeysActs.left);
+        CheckKeyPress(E_AllKeysActs.right);
+
+        CheckKeyRelease(E_AllKeysActs.up);
+        CheckKeyRelease(E_AllKeysActs.down);
+        CheckKeyRelease(E_AllKeysActs.left);
+        CheckKeyRelease(E_AllKeysActs.right);
         
+        CheckKeyHeld(E_AllKeysActs.up);
+        CheckKeyHeld(E_AllKeysActs.down);
+        CheckKeyHeld(E_AllKeysActs.left);
+        CheckKeyHeld(E_AllKeysActs.right);
+    }
+
+    private void InputFixedUpdate()
+    {
+
     }
     
     /// <summary>
@@ -49,27 +68,35 @@ public class InputMgr : Singleton<InputMgr>
     /// </summary>
     /// <param name="act">the action you want to change</param>
     /// <param name="newKey">the new key you want to change to</param>
-    public void ChangeKey(string act, KeyCode newKey)
+    public void ChangeKey(E_AllKeysActs act, KeyCode newKey)
     {
          KeySet[act] = newKey;
     }
     
-    private void CheckKey(KeyCode key) //check if key is pressed or released, only trigger event
+    private void CheckKeyPress(E_AllKeysActs act) //check if key is pressed, only trigger event
     {
-        if (Input.GetKeyDown(key)) //press key
+        if (Input.GetKeyDown(KeySet[act])) //press key
         {
-            EventMgr.Instance.EventTrigger("KeyIsPressed", key);
-        }
-        if (Input.GetKeyUp(key)) //release key
-        {
-            EventMgr.Instance.EventTrigger("KeyIsReleased", key);
-        }
-
-        if (Input.GetKey(key)) //hold key
-        {
-            EventMgr.Instance.EventTrigger("KeyIsHeld", key);
+            EventMgr.Instance.EventTrigger("KeyIsPressed", act);
         }
     }
+
+    private void CheckKeyRelease(E_AllKeysActs act)
+    {
+        if (Input.GetKeyUp(KeySet[act])) //release key
+        {
+            EventMgr.Instance.EventTrigger("KeyIsReleased", act);
+        }
+    }
+    
+    private void CheckKeyHeld(E_AllKeysActs act)
+    {
+        if (Input.GetKey(KeySet[act])) //hold key
+        {
+            EventMgr.Instance.EventTrigger("KeyIsHeld", act);
+        }
+    }
+    
 
     /// <summary>
     ///Open or close global check

@@ -60,9 +60,19 @@ public class DialoguePanelController : MonoBehaviour
         if(story.currentChoices.Count > 0) {
             for(int i = 0; i < story.currentChoices.Count; i++) {
                 Choice choice = story.currentChoices[i];
+                List<string> tags = choice.tags;
+
+                // create button
                 Button choiceButton = CreateChoiceView(choice.text.Trim());
                 choiceButton.onClick.AddListener(() => {
+                    // go to choice index
                     story.ChooseChoiceIndex(choice.index);
+                    // trigger events based on tags
+                    if(tags != null) {
+                        foreach(string tag in tags) {
+                            EventMgr.Instance.EventTrigger(tag);
+                        }
+                    }
                     RefreshView();
                 });
             }
