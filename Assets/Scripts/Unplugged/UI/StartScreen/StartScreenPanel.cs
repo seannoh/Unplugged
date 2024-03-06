@@ -11,8 +11,7 @@ public class StartScreenPanel : BasePanel
         {
             case "StartGameButton":
             Debug.Log("start game");
-                GoToScene("MainScene");
-                UIMgr.Instance.HidePanel("StartScreenPanel");
+                UIMgr.Instance.ShowPanel<CharacterCreationPanel>("CharacterCreationPanel", E_PanelLayer.Top);
                 break;
             case "OptionsButton":
                 // UIMgr.Instance.ShowPanel<OptionsScreenPanel>("OptionsScreenPanel", E_PanelLayer.Top);
@@ -21,14 +20,6 @@ public class StartScreenPanel : BasePanel
                 Application.Quit();
                 break;
         }
-    }
-
-    private void GoToScene(string sceneName)
-    {
-
-        SceneMgr.Instance.LoadSceneAsync(sceneName, () => {
-            return;
-        });
     }
 
 }
